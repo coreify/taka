@@ -5,7 +5,7 @@ import {
   parseTaka,
   TAKA_SYMBOL,
   toPoisha
-} from "./src";
+} from "../src";
 
 describe("regression fixes", () => {
   it("reject safe-boundary decimal strings that would silently round up", () => {
