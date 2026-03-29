@@ -34,3 +34,5 @@ npm-shrinkwrap.json
 
 # Package files
 *.tgz
+
+issues.md

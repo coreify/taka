@@ -1,26 +1,18 @@
-﻿import {
+import {
   TAKA_CODE,
   TAKA_NAME_BN,
   TAKA_NAME_EN,
   TAKA_SYMBOL
 } from "./constants";
 import type {
+  CompactUnit,
+  FractionDigits,
   TakaCompactStyle,
   TakaCurrencyDisplay,
   TakaCurrencyPosition,
   TakaFormatOptions,
   TakaLocale
-} from "./types";
-
-interface FractionDigits {
-  minimumFractionDigits: number;
-  maximumFractionDigits: number;
-}
-
-export interface CompactUnit {
-  threshold: number;
-  suffix: string;
-}
+} from "../types";
 
 const SOUTH_ASIAN_UNITS: CompactUnit[] = [
   { threshold: 10_000_000, suffix: "Cr" },

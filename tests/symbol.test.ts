@@ -23,5 +23,6 @@ describe("symbol utilities", () => {
     expect(getTakaName("en")).toBe("Taka");
     expect(getTakaName("bn")).toBe("টাকা");
     expect(getTakaName("bn-BD")).toBe("টাকা");
+    expect(getTakaName("en-BD")).toBe("Taka");
   });
 });

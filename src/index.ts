@@ -1,14 +1,14 @@
-export { formatTaka } from "./format";
-export { formatTakaCompact } from "./compact";
-export { isTakaString, normalizeTakaInput, parseTaka } from "./parse";
-export { toBanglaDigits, toEnglishDigits } from "./locale";
-export { getTakaCode, getTakaName, getTakaSymbol } from "./symbol";
+export { formatTaka } from "./core/format";
+export { formatTakaCompact } from "./core/compact";
+export { isTakaString, normalizeTakaInput, parseTaka } from "./core/parse";
+export { toBanglaDigits, toEnglishDigits } from "./core/locale";
+export { getTakaCode, getTakaName, getTakaSymbol } from "./core/symbol";
 export {
   TAKA_CODE,
   TAKA_NAME_BN,
   TAKA_NAME_EN,
   TAKA_SYMBOL
-} from "./constants";
+} from "./core/constants";
 export type {
   ParseTakaOptions,
   TakaCompactOptions,

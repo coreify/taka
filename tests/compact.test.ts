@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatTakaCompact } from "../src/compact";
+import { formatTakaCompact } from "../src";
 
 describe("formatTakaCompact", () => {
   it("formats south-asian compact output by default", () => {
@@ -21,5 +21,35 @@ describe("formatTakaCompact", () => {
 
   it("falls back to regular formatting below the compact threshold", () => {
     expect(formatTakaCompact(999)).toBe("৳999");
+  });
+
+  it("uses compact suffixes at exact south-asian thresholds", () => {
+    expect(formatTakaCompact(1000)).toBe("৳1K");
+    expect(formatTakaCompact(100_000)).toBe("৳1L");
+    expect(formatTakaCompact(10_000_000)).toBe("৳1Cr");
+  });
+
+  it("uses compact suffixes at international thresholds", () => {
+    expect(
+      formatTakaCompact(1_000_000, { compactStyle: "international" })
+    ).toBe("৳1M");
+    expect(
+      formatTakaCompact(1_000_000_000, { compactStyle: "international" })
+    ).toBe("৳1B");
+  });
+
+  it("rejects non-finite amounts", () => {
+    expect(() => formatTakaCompact(Number.NaN)).toThrow(TypeError);
+  });
+
+  it("delegates very small magnitudes to formatTaka (including zeroFormat)", () => {
+    expect(formatTakaCompact(0, { zeroFormat: "Free" })).toBe("Free");
+    expect(formatTakaCompact(12, { zeroFormat: "Free" })).toBe("৳12");
+  });
+
+  it("supports accounting negatives in compact mode", () => {
+    expect(
+      formatTakaCompact(-125000, { negativeStyle: "accounting" })
+    ).toBe("(৳1.25L)");
   });
 });

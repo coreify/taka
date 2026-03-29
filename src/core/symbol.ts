@@ -4,7 +4,7 @@ import {
   TAKA_NAME_EN,
   TAKA_SYMBOL
 } from "./constants";
-import type { TakaLanguage, TakaLocale } from "./types";
+import type { TakaLanguage, TakaLocale } from "../types";
 
 export function getTakaSymbol(): string {
   return TAKA_SYMBOL;

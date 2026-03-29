@@ -5,7 +5,7 @@ import {
   TAKA_SYMBOL
 } from "./constants";
 import { toEnglishDigits } from "./locale";
-import type { ParseTakaOptions } from "./types";
+import type { ParseTakaOptions } from "../types";
 
 const CURRENCY_TOKENS = [
   TAKA_SYMBOL,

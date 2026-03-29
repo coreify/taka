@@ -1,4 +1,4 @@
-﻿import { BANGLA_DIGITS, ENGLISH_DIGITS } from "./constants";
+import { BANGLA_DIGITS, ENGLISH_DIGITS } from "./constants";
 
 export function toBanglaDigits(input: number | string): string {
   return String(input).replace(

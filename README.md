@@ -22,6 +22,8 @@ This package focuses on those cases directly.
 npm install @coreify/taka
 ```
 
+Requires **Node.js 18+** (the runtime uses `Intl.NumberFormat`).
+
 If you want the React helpers as well:
 
 ```bash
@@ -44,6 +46,9 @@ formatTakaCompact(125000);
 
 parseTaka("৳ ১,২৫০.৫০");
 // => 1250.5
+
+parseTaka("not money");
+// => null
 ```
 
 ## Formatting Examples
@@ -68,7 +73,15 @@ formatTaka(2499, {
 
 formatTaka(-2499, { negativeStyle: "accounting" });
 // => "(৳2,499)"
+
+formatTaka(0, { zeroFormat: "Free" });
+// => "Free"
+
+formatTaka(1234567, { useGrouping: false });
+// => "৳1234567"
 ```
+
+`useGrouping` defaults to `true`. Use `zeroFormat` to replace the normal output when the amount is exactly zero.
 
 ## Bengali vs English
 
@@ -83,6 +96,12 @@ formatTaka(2499, { locale: "bn-BD" });
 
 formatTaka(2499, { locale: "bn-BD", style: "name" });
 // => "২,৪৯৯ টাকা"
+
+getTakaName("bn");
+// => "টাকা"
+
+getTakaName("bn-BD");
+// => "টাকা"
 
 toBanglaDigits("1250.50");
 // => "১২৫০.৫০"
@@ -131,7 +150,15 @@ normalizeTakaInput("৳ ১,২৫০.৫০");
 
 isTakaString("৳1,250");
 // => true
+
+parseTaka("(৳1,250)");
+// => -1250
+
+parseTaka("(1,250)", { allowParentheses: false });
+// => null (parentheses are not unfolded, so the value is not a plain number string)
 ```
+
+`parseTaka` returns `null` when the string cannot be parsed as a finite amount. By default, a value wrapped in parentheses is treated as negative; set `allowParentheses: false` to disable that.
 
 ## React Usage
 
@@ -144,7 +171,7 @@ function PriceCard() {
   return (
     <div>
       <p>
-        <TakaSymbol />
+        <TakaSymbol srLabel="Taka" />
       </p>
       <p>
         <TakaAmount value={1250} />
@@ -157,22 +184,28 @@ function PriceCard() {
 }
 ```
 
+- **`TakaSymbol`**: Renders `৳`. Use `srLabel` to override the default `aria-label` (`"Bangladeshi Taka"`).
+- **`TakaAmount`**: Uses the symbol display by default (same defaults as `formatTaka`). Pass `variant` or `style` / `currency` for `code` or `name`, mirroring core options (`decimals`, `trailingZeros`, `useGrouping`, `currencyPosition`, `space`, `negativeStyle`, `zeroFormat`, …).
+- **`TakaText`**: Same props as `TakaAmount`, but defaults to **name** style (e.g. `1,250 Taka` / `১,২৫০ টাকা` with locale). Override with `variant="symbol"` if you need the symbol.
+
+`TakaAmount` and `TakaText` use a sensible `aria-label` derived from the formatted **name** style unless you pass `srLabel`.
+
 All React components are typed, SSR-safe, and render plain text output inside a `span`.
 
 ## API Reference
 
 ### Core
 
-- `formatTaka(value, options?)`
-- `formatTakaCompact(value, options?)`
-- `parseTaka(input, options?)`
-- `normalizeTakaInput(input, options?)`
+- `formatTaka(value, options?)` — options include `locale`, `currency` / `style`, `decimals`, `trailingZeros`, `useGrouping`, `currencyPosition`, `space`, `negativeStyle`, `zeroFormat`
+- `formatTakaCompact(value, options?)` — same as format options plus `compactStyle` (`"south-asian"` \| `"international"`); values below 1,000 use full `formatTaka` output
+- `parseTaka(input, options?)` — returns `number \| null`
+- `normalizeTakaInput(input, options?)` — strips currency tokens and grouping; options: `allowParentheses` (default `true`)
 - `isTakaString(input, options?)`
 - `toBanglaDigits(input)`
 - `toEnglishDigits(input)`
 - `getTakaSymbol()`
 - `getTakaCode()`
-- `getTakaName(language?)`
+- `getTakaName(languageOrLocale?)` — `"en"` \| `"bn"` or `TakaLocale`; Bengali name is used when the argument starts with `"bn"`
 
 ### Constants
 
@@ -184,6 +217,7 @@ All React components are typed, SSR-safe, and render plain text output inside a 
 ### Main Types
 
 - `TakaLocale`
+- `TakaLanguage`
 - `TakaCurrencyDisplay`
 - `TakaCurrencyPosition`
 - `TakaCompactStyle`

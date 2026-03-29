@@ -1,46 +1,17 @@
-﻿import type { HTMLAttributes, ReactElement } from "react";
+import type { ReactElement } from "react";
 import { createElement } from "react";
-import { TAKA_SYMBOL } from "./constants";
-import { formatTaka } from "./format";
+import { TAKA_SYMBOL } from "../core/constants";
+import { formatTaka } from "../core/format";
 import type {
-  TakaCurrencyDisplay,
+  TakaAmountProps,
   TakaFormatOptions,
-  TakaLocale
-} from "./types";
+  TakaLocale,
+  TakaReactFormatOptionInput,
+  TakaSymbolProps,
+  TakaTextProps
+} from "../types";
 
-export interface TakaSymbolProps extends HTMLAttributes<HTMLSpanElement> {
-  srLabel?: string;
-}
-
-type SpanProps = HTMLAttributes<HTMLSpanElement>;
-
-type TakaFormatOptionInput = {
-  locale?: TakaLocale | undefined;
-  currency?: TakaCurrencyDisplay | undefined;
-  style?: TakaCurrencyDisplay | undefined;
-  variant?: TakaCurrencyDisplay | undefined;
-  decimals?: number | undefined;
-  trailingZeros?: boolean | undefined;
-  useGrouping?: boolean | undefined;
-  currencyPosition?: TakaFormatOptions["currencyPosition"] | undefined;
-  space?: boolean | undefined;
-  negativeStyle?: TakaFormatOptions["negativeStyle"] | undefined;
-  zeroFormat?: string | undefined;
-};
-
-type VariantOptions = Omit<TakaFormatOptions, "style"> & {
-  variant?: TakaCurrencyDisplay;
-};
-
-export interface TakaAmountProps extends SpanProps, VariantOptions {
-  value: number;
-  srLabel?: string;
-}
-
-export interface TakaTextProps extends SpanProps, VariantOptions {
-  value: number;
-  srLabel?: string;
-}
+export type { TakaAmountProps, TakaSymbolProps, TakaTextProps } from "../types";
 
 export function TakaSymbol({
   srLabel = "Bangladeshi Taka",
@@ -144,7 +115,9 @@ function getAccessibleLabel(
   return formatTaka(value, formatOptions);
 }
 
-function buildFormatOptions(options: TakaFormatOptionInput): TakaFormatOptions {
+function buildFormatOptions(
+  options: TakaReactFormatOptionInput
+): TakaFormatOptions {
   const formatOptions: TakaFormatOptions = {};
 
   if (options.locale) {
