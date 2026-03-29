@@ -49,6 +49,10 @@
   "bugs": {
     "url": "https://github.com/coreify/taka/issues"
   },
+  "prepack": "npm run build",
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "react": ">=18"
   },
