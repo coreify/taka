@@ -43,7 +43,7 @@
   "author": "Coreify",
   "repository": {
     "type": "git",
-    "url": "https://github.com/coreify/taka"
+    "url": "git+https://github.com/coreify/taka.git"
   },
   "homepage": "https://taka.js.org",
   "bugs": {
