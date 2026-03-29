@@ -6,11 +6,7 @@ export default defineConfig({
     react: "src/react.tsx"
   },
   format: ["esm", "cjs"],
-  dts: {
-    compilerOptions: {
-      ignoreDeprecations: "6.0"
-    }
-  },
+  dts: true,
   clean: true,
   sourcemap: false,
   splitting: false,
