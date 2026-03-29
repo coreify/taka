@@ -1,119 +1,152 @@
 import type { ReactElement } from "react";
-import { createElement } from "react";
+import { createElement, forwardRef } from "react";
 import { TAKA_SYMBOL } from "../core/constants";
-import { formatTaka } from "../core/format";
+import { formatCoercedAmount } from "../core/format";
+import { coerceFiniteAmount } from "../core/shared";
+import type { TakaFormatOptions } from "../types";
 import type {
   TakaAmountProps,
-  TakaFormatOptions,
-  TakaLocale,
   TakaReactFormatOptionInput,
   TakaSymbolProps,
   TakaTextProps
-} from "../types";
+} from "../types/react";
 
-export type { TakaAmountProps, TakaSymbolProps, TakaTextProps } from "../types";
+export type { TakaAmountProps, TakaSymbolProps, TakaTextProps } from "../types/react";
 
-export function TakaSymbol({
-  srLabel = "Bangladeshi Taka",
-  ...props
-}: TakaSymbolProps): ReactElement {
-  return createElement(
-    "span",
-    { "aria-label": srLabel, ...props },
-    TAKA_SYMBOL
-  );
-}
-
-export function TakaAmount({
-  value,
-  srLabel,
-  variant,
-  currency,
-  locale,
-  decimals,
-  trailingZeros,
-  useGrouping,
-  currencyPosition,
-  space,
-  negativeStyle,
-  zeroFormat,
-  ...props
-}: TakaAmountProps): ReactElement {
-  const formatOptions = buildFormatOptions({
-    locale,
-    currency,
-    variant,
-    decimals,
-    trailingZeros,
-    useGrouping,
-    currencyPosition,
-    space,
-    negativeStyle,
-    zeroFormat
-  });
-  const ariaLabel = srLabel ?? getAccessibleLabel(value, locale);
-  const formatted = formatTaka(value, formatOptions);
-
-  return createElement(
-    "span",
-    { "aria-label": ariaLabel, ...props },
-    formatted
-  );
-}
-
-export function TakaText({
-  value,
-  srLabel,
-  variant,
-  currency,
-  locale,
-  decimals,
-  trailingZeros,
-  useGrouping,
-  currencyPosition,
-  space,
-  negativeStyle,
-  zeroFormat,
-  ...props
-}: TakaTextProps): ReactElement {
-  const resolvedVariant = variant ?? currency ?? "name";
-  const formatOptions = buildFormatOptions({
-    locale,
-    variant: resolvedVariant,
-    decimals,
-    trailingZeros,
-    useGrouping,
-    currencyPosition,
-    space,
-    negativeStyle,
-    zeroFormat
-  });
-  const ariaLabel = srLabel ?? getAccessibleLabel(value, locale);
-  const formatted = formatTaka(value, formatOptions);
-
-  return createElement(
-    "span",
-    { "aria-label": ariaLabel, ...props },
-    formatted
-  );
-}
-
-function getAccessibleLabel(
-  value: number,
-  locale: TakaLocale | undefined
-): string {
-  const formatOptions = buildFormatOptions({
-    style: "name",
-    currencyPosition: "after",
-    space: true
-  });
-
-  if (locale) {
-    formatOptions.locale = locale;
+export const TakaSymbol = forwardRef<HTMLSpanElement, TakaSymbolProps>(
+  function TakaSymbol(
+    { "aria-label": ariaLabelProp, srLabel, ...props },
+    ref
+  ): ReactElement {
+    return createElement(
+      "span",
+      {
+        ...props,
+        ref,
+        "aria-label": srLabel ?? ariaLabelProp ?? "Bangladeshi Taka"
+      },
+      TAKA_SYMBOL
+    );
   }
+);
 
-  return formatTaka(value, formatOptions);
-}
+TakaSymbol.displayName = "TakaSymbol";
+
+export const TakaAmount = forwardRef<HTMLSpanElement, TakaAmountProps>(
+  function TakaAmount(
+    {
+      value,
+      srLabel,
+      variant,
+      currency,
+      locale,
+      decimals,
+      trailingZeros,
+      useGrouping,
+      currencyPosition,
+      space,
+      negativeStyle,
+      zeroFormat,
+      allowScientificNotation,
+      allowLooseCommaGrouping,
+      "aria-label": ariaLabelProp,
+      ...props
+    },
+    ref
+  ): ReactElement {
+    const formatOptions = buildFormatOptions({
+      locale,
+      currency,
+      variant,
+      decimals,
+      trailingZeros,
+      useGrouping,
+      currencyPosition,
+      space,
+      negativeStyle,
+      zeroFormat,
+      allowScientificNotation,
+      allowLooseCommaGrouping
+    });
+    const amount = coerceFiniteAmount(value, formatOptions);
+    const formatted = formatCoercedAmount(amount, formatOptions);
+    const ariaLabel =
+      srLabel ??
+      ariaLabelProp ??
+      formatCoercedAmount(amount, {
+        ...formatOptions,
+        style: "name",
+        currencyPosition: "after",
+        space: true
+      });
+
+    return createElement(
+      "span",
+      { ...props, ref, "aria-label": ariaLabel },
+      formatted
+    );
+  }
+);
+
+TakaAmount.displayName = "TakaAmount";
+
+export const TakaText = forwardRef<HTMLSpanElement, TakaTextProps>(
+  function TakaText(
+    {
+      value,
+      srLabel,
+      variant,
+      currency,
+      locale,
+      decimals,
+      trailingZeros,
+      useGrouping,
+      currencyPosition,
+      space,
+      negativeStyle,
+      zeroFormat,
+      allowScientificNotation,
+      allowLooseCommaGrouping,
+      "aria-label": ariaLabelProp,
+      ...props
+    },
+    ref
+  ): ReactElement {
+    const resolvedVariant = variant ?? currency ?? "name";
+    const formatOptions = buildFormatOptions({
+      locale,
+      variant: resolvedVariant,
+      decimals,
+      trailingZeros,
+      useGrouping,
+      currencyPosition,
+      space,
+      negativeStyle,
+      zeroFormat,
+      allowScientificNotation,
+      allowLooseCommaGrouping
+    });
+    const amount = coerceFiniteAmount(value, formatOptions);
+    const formatted = formatCoercedAmount(amount, formatOptions);
+    const ariaLabel =
+      srLabel ??
+      ariaLabelProp ??
+      formatCoercedAmount(amount, {
+        ...formatOptions,
+        style: "name",
+        currencyPosition: "after",
+        space: true
+      });
+
+    return createElement(
+      "span",
+      { ...props, ref, "aria-label": ariaLabel },
+      formatted
+    );
+  }
+);
+
+TakaText.displayName = "TakaText";
 
 function buildFormatOptions(
   options: TakaReactFormatOptionInput
@@ -160,6 +193,14 @@ function buildFormatOptions(
 
   if (options.zeroFormat) {
     formatOptions.zeroFormat = options.zeroFormat;
+  }
+
+  if (options.allowScientificNotation !== undefined) {
+    formatOptions.allowScientificNotation = options.allowScientificNotation;
+  }
+
+  if (options.allowLooseCommaGrouping !== undefined) {
+    formatOptions.allowLooseCommaGrouping = options.allowLooseCommaGrouping;
   }
 
   return formatOptions;

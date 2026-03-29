@@ -1,20 +1,18 @@
 # `@coreify/taka`
 
-A modern toolkit for formatting and rendering Bangladeshi Taka in JavaScript, TypeScript, and React apps.
+A modern toolkit for formatting and rendering Bangladeshi Taka (BDT) in JavaScript, TypeScript, and React.
 
-`@coreify/taka` is built for Bangladesh-first product teams that need predictable BDT formatting, localized digits, compact currency output, and small React-friendly helpers without dragging in a heavyweight i18n stack.
+Built for Bangladesh-first products that need predictable BDT formatting, localized digits, compact amounts, poisha helpers, and small React components without a heavyweight i18n stack.
 
-## Why This Package Exists
+## Why this package
 
-Most currency tooling is generic. Bangladeshi products often need a narrower set of features:
-
-- Correct Taka symbol and code handling
-- Bengali and English display modes
-- Compact values for dashboards and commerce UIs
-- Parsing from user-facing currency strings
-- SSR-safe React rendering
-
-This package focuses on those cases directly.
+- Correct **৳** symbol, **BDT** code, and **Taka** / **টাকা** display modes
+- **en-BD** and **bn-BD** via `Intl.NumberFormat`
+- **Compact** notation (South Asian **K / L / Cr** vs international **K / M / B**)
+- **Parse** user-facing currency strings (symbol, code, name; glued tokens; optional scientific notation with a currency token)
+- **Poisha** conversion (100 poisha = 1 taka)
+- **`bigint`** and boxed **`Number`** where noted
+- **SSR-friendly** React helpers on a separate entry (`@coreify/taka/react`)
 
 ## Installation
 
@@ -22,15 +20,15 @@ This package focuses on those cases directly.
 npm install @coreify/taka
 ```
 
-Requires **Node.js 18+** (the runtime uses `Intl.NumberFormat`).
+Requires **Node.js 18+** (uses `Intl.NumberFormat`).
 
-If you want the React helpers as well:
+For React:
 
 ```bash
 npm install @coreify/taka react
 ```
 
-## Quick Start
+## Quick start
 
 ```ts
 import { formatTaka, formatTakaCompact, parseTaka } from "@coreify/taka";
@@ -44,14 +42,16 @@ formatTaka(1250, { decimals: 2, trailingZeros: true });
 formatTakaCompact(125000);
 // => "৳1.25L"
 
-parseTaka("৳ ১,২৫০.৫০");
+parseTaka("৳1,250.50");
 // => 1250.5
 
 parseTaka("not money");
 // => null
 ```
 
-## Formatting Examples
+## Formatting
+
+`formatTaka` accepts a finite **`number`**, numeric **`string`**, **`bigint`** in the safe integer range, or boxed **`Number`**.
 
 ```ts
 import { formatTaka } from "@coreify/taka";
@@ -65,10 +65,7 @@ formatTaka(2499, { currency: "code" });
 formatTaka(2499, { style: "name" });
 // => "2,499 Taka"
 
-formatTaka(2499, {
-  currencyPosition: "after",
-  space: true
-});
+formatTaka(2499, { currencyPosition: "after", space: true });
 // => "2,499 ৳"
 
 formatTaka(-2499, { negativeStyle: "accounting" });
@@ -81,12 +78,16 @@ formatTaka(1234567, { useGrouping: false });
 // => "৳1234567"
 ```
 
-`useGrouping` defaults to `true`. Use `zeroFormat` to replace the normal output when the amount is exactly zero.
+- **`useGrouping`** defaults to **`true`**.
+- **`zeroFormat`**: when the coerced amount is exactly **0** (including **-0**), that string is returned instead of a normal format.
+- **String inputs**: US / Indian / European-style separators are normalized (see tests for edge cases). **Hex** strings (including fullwidth lookalikes such as `０x10`) throw **`TypeError`**. Out-of-safe-range values throw **`RangeError`**.
+- **`allowScientificNotation`**: when `true`, strings like `"1e3"` are accepted for formatting (no currency token required).
+- **`allowLooseCommaGrouping`**: when `true`, ambiguous comma patterns may be collapsed if the result is a safe plain number (use with care).
 
-## Bengali vs English
+### Bengali locale
 
 ```ts
-import { formatTaka, toBanglaDigits, toEnglishDigits } from "@coreify/taka";
+import { formatTaka, getTakaName, toBanglaDigits, toEnglishDigits } from "@coreify/taka";
 
 formatTaka(2499, { locale: "en-BD" });
 // => "৳2,499"
@@ -103,6 +104,9 @@ getTakaName("bn");
 getTakaName("bn-BD");
 // => "টাকা"
 
+getTakaName("bn-IN"); // any "bn-*" subtag → Bengali name
+// => "টাকা"
+
 toBanglaDigits("1250.50");
 // => "১২৫০.৫০"
 
@@ -110,7 +114,7 @@ toEnglishDigits("১,২৫০.৫০");
 // => "1,250.50"
 ```
 
-## Compact Formatting
+## Compact formatting
 
 ```ts
 import { formatTakaCompact } from "@coreify/taka";
@@ -131,7 +135,36 @@ formatTakaCompact(125000, { locale: "bn-BD" });
 // => "৳১.২৫L"
 ```
 
-## Parsing Examples
+Values with **`Math.abs(amount) < 1000`** use full **`formatTaka`** output. Options align with **`TakaFormatOptions`** where applicable (no `useGrouping` on the compact number; grouping is off for the scaled value).
+
+## Poisha (subunits)
+
+ISO 4217 minor units for BDT: **100 poisha = 1 taka**.
+
+```ts
+import {
+  formatTaka,
+  fromPoisha,
+  TAKA_POISHA_PER_TAKA,
+  toPoisha
+} from "@coreify/taka";
+
+TAKA_POISHA_PER_TAKA;
+// => 100
+
+toPoisha(12.5);
+// => 1250 (integer poisha)
+
+fromPoisha(1250);
+// => 12.5
+
+formatTaka(fromPoisha(toPoisha(12.5)));
+// => "৳12.5" (default fraction rules for non-integers)
+
+// Unsafe integer poisha throws RangeError
+```
+
+## Parsing
 
 ```ts
 import { isTakaString, normalizeTakaInput, parseTaka } from "@coreify/taka";
@@ -141,6 +174,9 @@ parseTaka("৳1,250");
 
 parseTaka("BDT 1,250.50");
 // => 1250.5
+
+parseTaka("BDT100");
+// => 100 (glued code)
 
 parseTaka("১,২৫০ টাকা");
 // => 1250
@@ -155,14 +191,36 @@ parseTaka("(৳1,250)");
 // => -1250
 
 parseTaka("(1,250)", { allowParentheses: false });
-// => null (parentheses are not unfolded, so the value is not a plain number string)
+// => null
 ```
 
-`parseTaka` returns `null` when the string cannot be parsed as a finite amount. By default, a value wrapped in parentheses is treated as negative; set `allowParentheses: false` to disable that.
+**Rules:**
 
-## React Usage
+- Returns **`null`** for unparseable input; throws **`TypeError`** if the string contains a **hex literal** (same rule as `formatTaka` for string coercion).
+- **`allowScientificNotation`**: when `true`, scientific forms are allowed **only if a Taka token is present** (e.g. `"৳1e3"`, `"BDT1e3"`). Bare `"1e3"` is still rejected.
+- **`allowLooseCommaGrouping`**: same idea as formatting; opt-in for ambiguous comma groupings.
+- More than one **৳** (U+09F3) in the input is rejected (`null`).
+- Safe range: amounts beyond **`Number.MAX_SAFE_INTEGER`** round-tripping rules return **`null`** (no silent rounding).
 
-React helpers are exported from the `./react` subpath so the core package stays framework-agnostic.
+**`normalizeTakaInput`**: strips currency markers and normalizes grouping for further processing; does not throw on hex (use `parseTaka` / `formatTaka` for strict hex rejection).
+
+## Advanced: `formatCoercedAmount`
+
+If you already coerced a value with the same options object shape (e.g. after `parseTaka`), format the **`number`** without parsing again:
+
+```ts
+import { formatCoercedAmount, formatTaka } from "@coreify/taka";
+
+const amount = 1250;
+formatCoercedAmount(amount, { locale: "bn-BD", style: "name" });
+// same result as formatTaka(amount, { ... }) for that amount
+```
+
+`formatTaka` is implemented as coerce-then-`formatCoercedAmount`.
+
+## React
+
+Helpers live under **`@coreify/taka/react`** so the core bundle stays React-free. The published **`dist/react.js`** / **`dist/react.cjs`** files are built so a top-level **`"use client"`** directive remains present after minification (Next.js App Router / RSC client boundaries).
 
 ```tsx
 import { TakaAmount, TakaSymbol, TakaText } from "@coreify/taka/react";
@@ -184,51 +242,40 @@ function PriceCard() {
 }
 ```
 
-- **`TakaSymbol`**: Renders `৳`. Use `srLabel` to override the default `aria-label` (`"Bangladeshi Taka"`).
-- **`TakaAmount`**: Uses the symbol display by default (same defaults as `formatTaka`). Pass `variant` or `style` / `currency` for `code` or `name`, mirroring core options (`decimals`, `trailingZeros`, `useGrouping`, `currencyPosition`, `space`, `negativeStyle`, `zeroFormat`, …).
-- **`TakaText`**: Same props as `TakaAmount`, but defaults to **name** style (e.g. `1,250 Taka` / `১,২৫০ টাকা` with locale). Override with `variant="symbol"` if you need the symbol.
+- **`TakaSymbol`**, **`TakaAmount`**, **`TakaText`**: **`forwardRef`** to the root **`span`**. DOM props match **`React.ComponentPropsWithoutRef<"span">`**, except **`children`** is omitted (content comes from formatting or the symbol).
+- **`TakaSymbol`**: renders **৳**. Default **`aria-label`**: `"Bangladeshi Taka"`; override with **`srLabel`** or **`aria-label`**.
+- **`TakaAmount`**: default display aligns with **`formatTaka`** (symbol style). Accepts **`variant`** / **`currency`** / **`style`** plus **`decimals`**, **`trailingZeros`**, **`useGrouping`**, **`currencyPosition`**, **`space`**, **`negativeStyle`**, **`zeroFormat`**, **`allowScientificNotation`**, **`allowLooseCommaGrouping`**, **`locale`**. Formatting options are **not** forwarded as DOM attributes.
+- **`TakaText`**: same props as **`TakaAmount`**, defaulting to **name** style (e.g. `"1,250 Taka"` / Bengali equivalent with **`locale`**). Use **`variant="symbol"`** for symbol output.
+- **`srLabel`** wins over a spread **`aria-label`**. If neither is set, **`TakaAmount`** / **`TakaText`** derive an accessible name from a **name**-style format of the same numeric options.
 
-`TakaAmount` and `TakaText` use a sensible `aria-label` derived from the formatted **name** style unless you pass `srLabel`.
-
-All React components are typed, SSR-safe, and render plain text output inside a `span`.
-
-## API Reference
+## API reference
 
 ### Core
 
-- `formatTaka(value, options?)` — options include `locale`, `currency` / `style`, `decimals`, `trailingZeros`, `useGrouping`, `currencyPosition`, `space`, `negativeStyle`, `zeroFormat`
-- `formatTakaCompact(value, options?)` — same as format options plus `compactStyle` (`"south-asian"` \| `"international"`); values below 1,000 use full `formatTaka` output
-- `parseTaka(input, options?)` — returns `number \| null`
-- `normalizeTakaInput(input, options?)` — strips currency tokens and grouping; options: `allowParentheses` (default `true`)
-- `isTakaString(input, options?)`
-- `toBanglaDigits(input)`
-- `toEnglishDigits(input)`
-- `getTakaSymbol()`
-- `getTakaCode()`
-- `getTakaName(languageOrLocale?)` — `"en"` \| `"bn"` or `TakaLocale`; Bengali name is used when the argument starts with `"bn"`
+| Export | Description |
+|--------|-------------|
+| **`formatTaka(value, options?)`** | Format BDT per **`TakaFormatOptions`**. |
+| **`formatCoercedAmount(amount, options?)`** | Format an already-coerced **`number`**. |
+| **`formatTakaCompact(value, options?)`** | Compact form; **`TakaCompactOptions`**. |
+| **`parseTaka(input, options?)`** | **`number \| null`**; **`ParseTakaOptions`**. |
+| **`normalizeTakaInput(input, options?)`** | Stripped/normalized numeric string. |
+| **`isTakaString(input, options?)`** | **`boolean`**; **`false`** for hex or multiple **৳**. |
+| **`toBanglaDigits`** / **`toEnglishDigits`** | Digit scripts. |
+| **`toPoisha`** / **`fromPoisha`** | Poisha conversion; throws if non-finite or unsafe integer poisha. |
+| **`TAKA_POISHA_PER_TAKA`** | `100` |
+| **`getTakaSymbol`** / **`getTakaCode`** / **`getTakaName`** | Constants helpers; name resolves **`bn`**, **`bn-BD`**, **`bn-*`**, **`en`**, **`en-BD`**, **`en-*`**; otherwise English **Taka**. |
 
 ### Constants
 
-- `TAKA_SYMBOL`
-- `TAKA_CODE`
-- `TAKA_NAME_EN`
-- `TAKA_NAME_BN`
+**`TAKA_SYMBOL`** (`৳`), **`TAKA_CODE`** (`BDT`), **`TAKA_NAME_EN`**, **`TAKA_NAME_BN`**.
 
-### Main Types
+### Types
 
-- `TakaLocale`
-- `TakaLanguage`
-- `TakaCurrencyDisplay`
-- `TakaCurrencyPosition`
-- `TakaCompactStyle`
-- `TakaNegativeStyle`
-- `TakaFormatOptions`
-- `TakaCompactOptions`
-- `ParseTakaOptions`
+**`TakaLocale`**, **`TakaLanguage`**, **`TakaCurrencyDisplay`**, **`TakaCurrencyPosition`**, **`TakaCompactStyle`**, **`TakaNegativeStyle`**, **`TakaNumericInput`**, **`TakaFormatOptions`**, **`TakaCompactOptions`**, **`ParseTakaOptions`**.
 
-## TypeScript Support
+## TypeScript
 
-The package is authored in strict TypeScript, ships declaration files for both the main entry and the React subpath, and exposes a small, IntelliSense-friendly API surface.
+Strict TypeScript, declaration files for **`@coreify/taka`** and **`@coreify/taka/react`**. Core types do not import React, so non-React apps need not add **`react`** for the main entry.
 
 ## License
 

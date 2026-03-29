@@ -4,6 +4,14 @@ import {
   TAKA_NAME_EN,
   TAKA_SYMBOL
 } from "./constants";
+import { containsHexLiteral } from "./hex-literal";
+import {
+  isSafeCoercedFiniteNumber,
+  isSafeNumberString,
+  isStrictPlainNumericString,
+  isStrictScientificNumericString,
+  normalizePlainNumericString
+} from "./numeric-string";
 import type {
   CompactUnit,
   FractionDigits,
@@ -11,7 +19,8 @@ import type {
   TakaCurrencyDisplay,
   TakaCurrencyPosition,
   TakaFormatOptions,
-  TakaLocale
+  TakaLocale,
+  TakaNumericInput
 } from "../types";
 
 const SOUTH_ASIAN_UNITS: CompactUnit[] = [
@@ -26,10 +35,76 @@ const INTERNATIONAL_UNITS: CompactUnit[] = [
   { threshold: 1_000, suffix: "K" }
 ];
 
-export function assertFiniteAmount(value: number): void {
-  if (!Number.isFinite(value)) {
-    throw new TypeError("Expected a finite number.");
+export function coerceFiniteAmount(
+  value: TakaNumericInput,
+  options: Pick<
+    TakaFormatOptions,
+    "allowScientificNotation" | "allowLooseCommaGrouping"
+  > = {}
+): number {
+  if (typeof value === "bigint") {
+    if (
+      value > BigInt(Number.MAX_SAFE_INTEGER) ||
+      value < BigInt(Number.MIN_SAFE_INTEGER)
+    ) {
+      throw new RangeError("Amount is outside the safe numeric range.");
+    }
+
+    return Number(value);
   }
+
+  const normalizedValue =
+    value instanceof Number ? value.valueOf() : typeof value === "string"
+      ? value.trim()
+      : value;
+
+  if (typeof normalizedValue === "string") {
+    if (!normalizedValue) {
+      throw new TypeError("Expected a finite number or numeric string.");
+    }
+
+    if (containsHexLiteral(normalizedValue)) {
+      throw new TypeError("Hex numeric strings are not accepted.");
+    }
+
+    const normalized = normalizePlainNumericString(normalizedValue, {
+      allowLooseCommaGrouping: options.allowLooseCommaGrouping === true
+    });
+
+    if (options.allowScientificNotation && isStrictScientificNumericString(normalized)) {
+      const parsed = Number(normalized);
+
+      if (!Number.isFinite(parsed) || !isSafeCoercedFiniteNumber(parsed)) {
+        throw new RangeError("Amount is outside the safe numeric range.");
+      }
+
+      return parsed;
+    }
+
+    if (!isStrictPlainNumericString(normalized)) {
+      throw new TypeError(
+        "Expected a finite number or plain numeric string (e.g. 1250, 1,250, or 1.234,56). Hex strings are not accepted. Enable allowScientificNotation for values like 1e6."
+      );
+    }
+
+    if (!isSafeNumberString(normalized)) {
+      throw new RangeError("Amount is outside the safe numeric range.");
+    }
+
+    const parsed = Number(normalized);
+
+    if (!Number.isFinite(parsed)) {
+      throw new TypeError("Expected a finite number or numeric string.");
+    }
+
+    return parsed;
+  }
+
+  if (!Number.isFinite(normalizedValue)) {
+    throw new TypeError("Expected a finite number or numeric string.");
+  }
+
+  return normalizedValue;
 }
 
 export function resolveLocale(locale?: TakaLocale): TakaLocale {

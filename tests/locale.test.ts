@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import { toBanglaDigits, toEnglishDigits } from "../src";
 
 describe("digit conversion", () => {

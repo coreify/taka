@@ -24,5 +24,11 @@ describe("symbol utilities", () => {
     expect(getTakaName("bn")).toBe("টাকা");
     expect(getTakaName("bn-BD")).toBe("টাকা");
     expect(getTakaName("en-BD")).toBe("Taka");
+    expect(getTakaName("bn-IN" as never)).toBe("টাকা");
+    expect(getTakaName("en-US" as never)).toBe("Taka");
+  });
+
+  it("falls back to the English name for unknown locale codes", () => {
+    expect(getTakaName("fr" as never)).toBe("Taka");
   });
 });

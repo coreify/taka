@@ -1,7 +1,7 @@
 import {
   applyNegativeStyle,
-  assertFiniteAmount,
   combineCurrencyAndValue,
+  coerceFiniteAmount,
   formatNumber,
   getCurrencyLabel,
   resolveCurrencyDisplay,
@@ -10,15 +10,14 @@ import {
   resolveFractionDigits,
   resolveLocale
 } from "./shared";
-import type { TakaFormatOptions } from "../types";
+import type { TakaFormatOptions, TakaNumericInput } from "../types";
 
-export function formatTaka(
-  value: number,
+/** Format an amount that has already been coerced with {@link coerceFiniteAmount}. */
+export function formatCoercedAmount(
+  amount: number,
   options: TakaFormatOptions = {}
 ): string {
-  assertFiniteAmount(value);
-
-  if (value === 0 && options.zeroFormat) {
+  if (amount === 0 && options.zeroFormat) {
     return options.zeroFormat;
   }
 
@@ -27,12 +26,12 @@ export function formatTaka(
   const position = resolveCurrencyPosition(display, options.currencyPosition);
   const spaced = resolveCurrencySpacing(display, options.space);
   const fractionDigits = resolveFractionDigits(
-    value,
+    amount,
     options.decimals,
     options.trailingZeros
   );
   const useGrouping = options.useGrouping ?? true;
-  const absoluteValue = Math.abs(value);
+  const absoluteValue = Math.abs(amount);
   const currencyLabel = getCurrencyLabel(display, locale);
   const formattedNumber = formatNumber(
     absoluteValue,
@@ -47,5 +46,12 @@ export function formatTaka(
     spaced
   );
 
-  return applyNegativeStyle(formattedValue, value, options.negativeStyle);
+  return applyNegativeStyle(formattedValue, amount, options.negativeStyle);
+}
+
+export function formatTaka(
+  value: TakaNumericInput,
+  options: TakaFormatOptions = {}
+): string {
+  return formatCoercedAmount(coerceFiniteAmount(value, options), options);
 }

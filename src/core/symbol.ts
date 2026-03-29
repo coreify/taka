@@ -17,5 +17,15 @@ export function getTakaCode(): string {
 export function getTakaName(
   language: TakaLanguage | TakaLocale = "en"
 ): string {
-  return language.startsWith("bn") ? TAKA_NAME_BN : TAKA_NAME_EN;
+  const code = String(language);
+
+  if (code === "bn" || code === "bn-BD" || code.startsWith("bn-")) {
+    return TAKA_NAME_BN;
+  }
+
+  if (code === "en" || code === "en-BD" || code.startsWith("en-")) {
+    return TAKA_NAME_EN;
+  }
+
+  return TAKA_NAME_EN;
 }

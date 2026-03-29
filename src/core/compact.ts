@@ -1,9 +1,9 @@
-import type { TakaCompactOptions } from "../types";
-import { formatTaka } from "./format";
+import type { TakaCompactOptions, TakaNumericInput } from "../types";
+import { formatCoercedAmount } from "./format";
 import {
   applyNegativeStyle,
-  assertFiniteAmount,
   combineCurrencyAndValue,
+  coerceFiniteAmount,
   formatNumber,
   getCompactUnits,
   getCurrencyLabel,
@@ -15,17 +15,17 @@ import {
 } from "./shared";
 
 export function formatTakaCompact(
-  value: number,
+  value: TakaNumericInput,
   options: TakaCompactOptions = {}
 ): string {
-  assertFiniteAmount(value);
+  const amount = coerceFiniteAmount(value, options);
 
-  if (Math.abs(value) < 1_000) {
-    return formatTaka(value, options);
+  if (amount === 0 && options.zeroFormat) {
+    return options.zeroFormat;
   }
 
-  if (value === 0 && options.zeroFormat) {
-    return options.zeroFormat;
+  if (Math.abs(amount) < 1_000) {
+    return formatCoercedAmount(amount, options);
   }
 
   const locale = resolveLocale(options.locale);
@@ -33,13 +33,13 @@ export function formatTakaCompact(
   const position = resolveCurrencyPosition(display, options.currencyPosition);
   const spaced = resolveCurrencySpacing(display, options.space);
   const compactStyle = options.compactStyle ?? "south-asian";
-  const absoluteValue = Math.abs(value);
+  const absoluteValue = Math.abs(amount);
   const unit = getCompactUnits(compactStyle).find(
     (candidate) => absoluteValue >= candidate.threshold
   );
 
   if (!unit) {
-    return formatTaka(value, options);
+    return formatCoercedAmount(amount, options);
   }
 
   const scaledValue = absoluteValue / unit.threshold;
@@ -58,5 +58,5 @@ export function formatTakaCompact(
     spaced
   );
 
-  return applyNegativeStyle(formattedValue, value, options.negativeStyle);
+  return applyNegativeStyle(formattedValue, amount, options.negativeStyle);
 }
