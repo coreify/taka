@@ -45,7 +45,17 @@ export interface TakaCompactOptions extends Omit<
   TakaFormatOptions,
   "useGrouping"
 > {
+  /**
+   * South Asian (**K / L / Cr**) vs international (**K / M / B**) thresholds. Ignored when
+   * **`locale` is `bn-BD`** and **`compactLabelStyle` is `"localized"`** (Bengali কোটি/লাখ/হাজার words are used instead).
+   */
   compactStyle?: TakaCompactStyle;
+  /**
+   * - **`short`**: suffix labels (e.g. `1.25L`, `1.5M`).
+   * - **`localized`**: English uses words (`thousand`, `million`, …). For **`locale: "bn-BD"`**, uses
+   *   **কোটি / লাখ / হাজার** phrases (e.g. `১২ লাখ ৫০ হাজার` for 1,250,000), not decimal `১.২৫ লাখ` or
+   *   **মিলিয়ন** / **বিলিয়ন** alone.
+   */
   compactLabelStyle?: TakaCompactLabelStyle;
 }
 

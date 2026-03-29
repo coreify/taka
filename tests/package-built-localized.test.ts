@@ -7,7 +7,6 @@ import { beforeAll, describe, expect, it } from "vitest";
 const require = createRequire(import.meta.url);
 const distIndexJsPath = join(process.cwd(), "dist/index.js");
 const distIndexCjsPath = join(process.cwd(), "dist/index.cjs");
-const LAKH = "\u09b2\u09be\u0996";
 
 type BuiltCoreModule = typeof BuiltCoreExports;
 
@@ -26,7 +25,9 @@ describe("built package localized compact labels", () => {
         compactLabelStyle: "localized",
         locale: "bn-BD"
       })
-    ).toBe(`${builtCoreEsm.TAKA_SYMBOL}\u09e7.\u09e8\u09eb ${LAKH}`);
+    ).toBe(
+      `${builtCoreEsm.TAKA_SYMBOL}\u09e7 \u09b2\u09be\u0996 \u09e8\u09eb \u09b9\u09be\u099c\u09be\u09b0`
+    );
     expect(
       builtCoreCjs.formatTakaCompact(1500000, {
         compactStyle: "international",

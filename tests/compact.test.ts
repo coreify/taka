@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { TAKA_SYMBOL, formatTakaCompact, toBanglaDigits } from "../src";
 
 describe("formatTakaCompact", () => {
@@ -23,7 +23,7 @@ describe("formatTakaCompact", () => {
         compactLabelStyle: "localized",
         locale: "bn-BD"
       })
-    ).toBe(`${TAKA_SYMBOL}${toBanglaDigits("1.25")} লাখ`);
+    ).toBe(`${TAKA_SYMBOL}১ লাখ ২৫ হাজার`);
     expect(
       formatTakaCompact(10000000, {
         compactLabelStyle: "localized",

@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { formatTakaCompact, TAKA_SYMBOL, toBanglaDigits } from "../src";
 
-const LAKH = "\u09b2\u09be\u0996";
 const KOTI = "\u0995\u09cb\u099f\u09bf";
-const BILLION_BN = "\u09ac\u09bf\u09b2\u09bf\u09af\u09bc\u09a8";
 
 describe("formatTakaCompact localized labels", () => {
   it("uses locale-aware words when compactLabelStyle is localized", () => {
@@ -15,13 +13,19 @@ describe("formatTakaCompact localized labels", () => {
         compactLabelStyle: "localized",
         locale: "bn-BD"
       })
-    ).toBe(`${TAKA_SYMBOL}${toBanglaDigits("1.25")} ${LAKH}`);
+    ).toBe(`${TAKA_SYMBOL}১ লাখ ২৫ হাজার`);
     expect(
       formatTakaCompact(10000000, {
         compactLabelStyle: "localized",
         locale: "bn-BD"
       })
     ).toBe(`${TAKA_SYMBOL}${toBanglaDigits("1")} ${KOTI}`);
+    expect(
+      formatTakaCompact(1250000, {
+        compactLabelStyle: "localized",
+        locale: "bn-BD"
+      })
+    ).toBe(`${TAKA_SYMBOL}১২ লাখ ৫০ হাজার`);
   });
 
   it("supports localized labels with international compact style", () => {
@@ -37,7 +41,7 @@ describe("formatTakaCompact localized labels", () => {
         compactLabelStyle: "localized",
         locale: "bn-BD"
       })
-    ).toBe(`${TAKA_SYMBOL}${toBanglaDigits("1")} ${BILLION_BN}`);
+    ).toBe(`${TAKA_SYMBOL}১০০ কোটি`);
   });
 
   it("keeps negative and currency-position behavior with localized labels", () => {
@@ -46,7 +50,7 @@ describe("formatTakaCompact localized labels", () => {
         compactLabelStyle: "localized",
         locale: "bn-BD"
       })
-    ).toBe(`-${TAKA_SYMBOL}${toBanglaDigits("1.25")} ${LAKH}`);
+    ).toBe(`-${TAKA_SYMBOL}১ লাখ ২৫ হাজার`);
     expect(
       formatTakaCompact(125000, {
         compactLabelStyle: "localized",
@@ -54,6 +58,6 @@ describe("formatTakaCompact localized labels", () => {
         space: true,
         locale: "bn-BD"
       })
-    ).toBe(`${toBanglaDigits("1.25")} ${LAKH} ${TAKA_SYMBOL}`);
+    ).toBe(`১ লাখ ২৫ হাজার ${TAKA_SYMBOL}`);
   });
 });

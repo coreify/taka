@@ -1,4 +1,5 @@
 import type { TakaCompactOptions, TakaNumericInput } from "../types";
+import { formatBnLocalizedCompactAmount } from "./compact-bn-words";
 import { formatCoercedAmount } from "./format";
 import {
   applyNegativeStyle,
@@ -30,11 +31,29 @@ export function formatTakaCompact(
   }
 
   const locale = resolveLocale(options.locale);
+  const compactLabelStyle = options.compactLabelStyle ?? "short";
+
+  if (locale === "bn-BD" && compactLabelStyle === "localized") {
+    const absoluteValue = Math.abs(amount);
+    const display = resolveCurrencyDisplay(options);
+    const position = resolveCurrencyPosition(display, options.currencyPosition);
+    const spaced = resolveCurrencySpacing(display, options.space);
+    const currencyLabel = getCurrencyLabel(display, locale);
+    const formattedNumber = formatBnLocalizedCompactAmount(absoluteValue);
+    const formattedValue = combineCurrencyAndValue(
+      currencyLabel,
+      formattedNumber,
+      position,
+      spaced
+    );
+
+    return applyNegativeStyle(formattedValue, amount, options.negativeStyle);
+  }
+
   const display = resolveCurrencyDisplay(options);
   const position = resolveCurrencyPosition(display, options.currencyPosition);
   const spaced = resolveCurrencySpacing(display, options.space);
   const compactStyle = options.compactStyle ?? "south-asian";
-  const compactLabelStyle = options.compactLabelStyle ?? "short";
   const absoluteValue = Math.abs(amount);
   const unit = getCompactUnits(compactStyle).find(
     (candidate) => absoluteValue >= candidate.threshold

@@ -1,4 +1,4 @@
-﻿# `@coreify/taka`
+# `@coreify/taka`
 
 A modern toolkit for formatting and rendering Bangladeshi Taka (BDT) in JavaScript, TypeScript, and React.
 
@@ -6,9 +6,9 @@ Built for Bangladesh-first products that need predictable BDT formatting, locali
 
 ## Why this package
 
-- Correct **à§³** symbol, **BDT** code, and **Taka** / **à¦Ÿà¦¾à¦•à¦¾** display modes
+- Correct **৳** symbol, **BDT** code, and **Taka** / **টাকা** display modes
 - **en-BD** and **bn-BD** via `Intl.NumberFormat`
-- **Compact** notation (South Asian **K / L / Cr** or localized **হাজার / লাখ / কোটি**, plus international **K / M / B**)
+- **Compact** notation: South Asian **K / L / Cr**, international **K / M / B**, and Bengali **localized** phrasing (কোটি / লাখ / হাজার)
 - **Parse** user-facing currency strings (symbol, code, name; glued tokens; optional scientific notation with a currency token)
 - **Poisha** conversion (100 poisha = 1 taka)
 - **`bigint`** and boxed **`Number`** where noted
@@ -34,15 +34,15 @@ npm install @coreify/taka react
 import { formatTaka, formatTakaCompact, parseTaka } from "@coreify/taka";
 
 formatTaka(1250);
-// => "à§³1,250"
+// => "৳1,250"
 
 formatTaka(1250, { decimals: 2, trailingZeros: true });
-// => "à§³1,250.00"
+// => "৳1,250.00"
 
 formatTakaCompact(125000);
-// => "à§³1.25L"
+// => "৳1.25L"
 
-parseTaka("à§³1,250.50");
+parseTaka("৳1,250.50");
 // => 1250.5
 
 parseTaka("not money");
@@ -57,7 +57,7 @@ parseTaka("not money");
 import { formatTaka } from "@coreify/taka";
 
 formatTaka(2499);
-// => "à§³2,499"
+// => "৳2,499"
 
 formatTaka(2499, { currency: "code" });
 // => "BDT 2,499"
@@ -66,21 +66,21 @@ formatTaka(2499, { style: "name" });
 // => "2,499 Taka"
 
 formatTaka(2499, { currencyPosition: "after", space: true });
-// => "2,499 à§³"
+// => "2,499 ৳"
 
 formatTaka(-2499, { negativeStyle: "accounting" });
-// => "(à§³2,499)"
+// => "(৳2,499)"
 
 formatTaka(0, { zeroFormat: "Free" });
 // => "Free"
 
 formatTaka(1234567, { useGrouping: false });
-// => "à§³1234567"
+// => "৳1234567"
 ```
 
 - **`useGrouping`** defaults to **`true`**.
 - **`zeroFormat`**: when the coerced amount is exactly **0** (including **-0**), that string is returned instead of a normal format.
-- **String inputs**: US / Indian / European-style separators are normalized (see tests for edge cases). **Hex** strings (including fullwidth lookalikes such as `ï¼x10`) throw **`TypeError`**. Out-of-safe-range values throw **`RangeError`**.
+- **String inputs**: US / Indian / European-style separators are normalized (see tests). **Hex** strings (including fullwidth lookalikes such as `０x10`) throw **`TypeError`**. Out-of-safe-range values throw **`RangeError`**.
 - **`allowScientificNotation`**: when `true`, strings like `"1e3"` are accepted for formatting (no currency token required).
 - **`allowLooseCommaGrouping`**: when `true`, ambiguous comma patterns may be collapsed if the result is a safe plain number (use with care).
 
@@ -90,64 +90,82 @@ formatTaka(1234567, { useGrouping: false });
 import { formatTaka, getTakaName, toBanglaDigits, toEnglishDigits } from "@coreify/taka";
 
 formatTaka(2499, { locale: "en-BD" });
-// => "à§³2,499"
+// => "৳2,499"
 
 formatTaka(2499, { locale: "bn-BD" });
-// => "à§³à§¨,à§ªà§¯à§¯"
+// => "৳২,৪৯৯"
 
 formatTaka(2499, { locale: "bn-BD", style: "name" });
-// => "à§¨,à§ªà§¯à§¯ à¦Ÿà¦¾à¦•à¦¾"
+// => "২,৪৯৯ টাকা"
 
 getTakaName("bn");
-// => "à¦Ÿà¦¾à¦•à¦¾"
+// => "টাকা"
 
 getTakaName("bn-BD");
-// => "à¦Ÿà¦¾à¦•à¦¾"
+// => "টাকা"
 
-getTakaName("bn-IN"); // any "bn-*" subtag â†’ Bengali name
-// => "à¦Ÿà¦¾à¦•à¦¾"
+getTakaName("bn-IN"); // any "bn-*" subtag → Bengali name
+// => "টাকা"
 
 toBanglaDigits("1250.50");
-// => "à§§à§¨à§«à§¦.à§«à§¦"
+// => "১২৫০.৫০"
 
-toEnglishDigits("à§§,à§¨à§«à§¦.à§«à§¦");
+toEnglishDigits("১,২৫০.৫০");
 // => "1,250.50"
 ```
 
 ## Compact formatting
 
+Short suffixes (**`K` / `L` / `Cr`** or **`K` / `M` / `B`**) use scaled decimals. For **`locale: "bn-BD"`** with **`compactLabelStyle: "localized"`**, the amount is instead written with **কোটি / লাখ / হাজার** so values match how people read them (e.g. **1,250,000** → **১২ লাখ ৫০ হাজার**, not **১.২৫ লাখ** which would read like 1.25 lakh = 125,000, and not **১.২৫ মিলিয়ন** alone).
+
 ```ts
 import { formatTakaCompact } from "@coreify/taka";
 
 formatTakaCompact(1200);
-// => "à§³1.2K"
+// => "৳1.2K"
 
 formatTakaCompact(125000);
-// => "à§³1.25L"
+// => "৳1.25L"
 
 formatTakaCompact(10000000);
-// => "à§³1Cr"
+// => "৳1Cr"
 
 formatTakaCompact(1500000, { compactStyle: "international" });
-// => "à§³1.5M"
+// => "৳1.5M"
 
 formatTakaCompact(125000, { locale: "bn-BD" });
-// => "à§³à§§.à§¨à§«L"
+// => "৳১.২৫L" (short suffix; Bengali digits)
 
 formatTakaCompact(125000, {
   locale: "bn-BD",
   compactLabelStyle: "localized"
 });
-// => "à§³à§§.à§¨à§« লাখ"
+// => "৳১ লাখ ২৫ হাজার"
+
+formatTakaCompact(1250000, {
+  locale: "bn-BD",
+  compactLabelStyle: "localized"
+});
+// => "৳১২ লাখ ৫০ হাজার"
 
 formatTakaCompact(1500000, {
   compactStyle: "international",
   compactLabelStyle: "localized"
 });
-// => "à§³1.5 million"
+// => "৳1.5 million" (default English locale)
+
+formatTakaCompact(1000000000, {
+  compactStyle: "international",
+  compactLabelStyle: "localized",
+  locale: "bn-BD"
+});
+// => "৳১০০ কোটি" (1 billion → 100 crore; not "১ বিলিয়ন")
 ```
 
-Values with **`Math.abs(amount) < 1000`** use full **`formatTaka`** output. Options align with **`TakaFormatOptions`** where applicable (no `useGrouping` on the compact number; grouping is off for the scaled value). Set **`compactLabelStyle: "localized"`** to use locale-aware words instead of short suffixes.
+In JavaScript, `1000000000` and `1_000_000_000` are the same value; underscores are optional and only help readability.
+
+Values with **`Math.abs(amount) < 1000`** use full **`formatTaka`** output. For **`bn-BD`** + **`localized`**, **`compactStyle`** (South Asian vs international) does not apply: the Bengali word ladder is always **কোটি → লাখ → হাজার**.
+
 ## Poisha (subunits)
 
 ISO 4217 minor units for BDT: **100 poisha = 1 taka**.
@@ -170,7 +188,7 @@ fromPoisha(1250);
 // => 12.5
 
 formatTaka(fromPoisha(toPoisha(12.5)));
-// => "à§³12.5" (default fraction rules for non-integers)
+// => "৳12.5" (default fraction rules for non-integers)
 
 // Unsafe integer poisha throws RangeError
 ```
@@ -180,7 +198,7 @@ formatTaka(fromPoisha(toPoisha(12.5)));
 ```ts
 import { isTakaString, normalizeTakaInput, parseTaka } from "@coreify/taka";
 
-parseTaka("à§³1,250");
+parseTaka("৳1,250");
 // => 1250
 
 parseTaka("BDT 1,250.50");
@@ -189,16 +207,16 @@ parseTaka("BDT 1,250.50");
 parseTaka("BDT100");
 // => 100 (glued code)
 
-parseTaka("à§§,à§¨à§«à§¦ à¦Ÿà¦¾à¦•à¦¾");
+parseTaka("১,২৫০ টাকা");
 // => 1250
 
-normalizeTakaInput("à§³ à§§,à§¨à§«à§¦.à§«à§¦");
+normalizeTakaInput("৳ ১,২৫০.৫০");
 // => "1250.50"
 
-isTakaString("à§³1,250");
+isTakaString("৳1,250");
 // => true
 
-parseTaka("(à§³1,250)");
+parseTaka("(৳1,250)");
 // => -1250
 
 parseTaka("(1,250)", { allowParentheses: false });
@@ -208,9 +226,9 @@ parseTaka("(1,250)", { allowParentheses: false });
 **Rules:**
 
 - Returns **`null`** for unparseable input; throws **`TypeError`** if the string contains a **hex literal** (same rule as `formatTaka` for string coercion).
-- **`allowScientificNotation`**: when `true`, scientific forms are allowed **only if a Taka token is present** (e.g. `"à§³1e3"`, `"BDT1e3"`). Bare `"1e3"` is still rejected.
+- **`allowScientificNotation`**: when `true`, scientific forms are allowed **only if a Taka token is present** (e.g. `"৳1e3"`, `"BDT1e3"`). Bare `"1e3"` is still rejected.
 - **`allowLooseCommaGrouping`**: same idea as formatting; opt-in for ambiguous comma groupings.
-- More than one **à§³** (U+09F3) in the input is rejected (`null`).
+- More than one **৳** (U+09F3) in the input is rejected (`null`).
 - Safe range: amounts beyond **`Number.MAX_SAFE_INTEGER`** round-tripping rules return **`null`** (no silent rounding).
 
 **`normalizeTakaInput`**: strips currency markers and normalizes grouping for further processing; does not throw on hex (use `parseTaka` / `formatTaka` for strict hex rejection).
@@ -254,7 +272,7 @@ function PriceCard() {
 ```
 
 - **`TakaSymbol`**, **`TakaAmount`**, **`TakaText`**: **`forwardRef`** to the root **`span`**. DOM props match **`React.ComponentPropsWithoutRef<"span">`**, except **`children`** is omitted (content comes from formatting or the symbol).
-- **`TakaSymbol`**: renders **à§³**. Default **`aria-label`**: `"Bangladeshi Taka"`; override with **`srLabel`** or **`aria-label`**.
+- **`TakaSymbol`**: renders **৳**. Default **`aria-label`**: `"Bangladeshi Taka"`; override with **`srLabel`** or **`aria-label`**.
 - **`TakaAmount`**: default display aligns with **`formatTaka`** (symbol style). Accepts **`variant`** / **`currency`** / **`style`** plus **`decimals`**, **`trailingZeros`**, **`useGrouping`**, **`currencyPosition`**, **`space`**, **`negativeStyle`**, **`zeroFormat`**, **`allowScientificNotation`**, **`allowLooseCommaGrouping`**, **`locale`**. Formatting options are **not** forwarded as DOM attributes.
 - **`TakaText`**: same props as **`TakaAmount`**, defaulting to **name** style (e.g. `"1,250 Taka"` / Bengali equivalent with **`locale`**). Use **`variant="symbol"`** for symbol output.
 - **`srLabel`** wins over a spread **`aria-label`**. If neither is set, **`TakaAmount`** / **`TakaText`** derive an accessible name from a **name**-style format of the same numeric options.
@@ -270,7 +288,7 @@ function PriceCard() {
 | **`formatTakaCompact(value, options?)`** | Compact form; **`TakaCompactOptions`**. |
 | **`parseTaka(input, options?)`** | **`number \| null`**; **`ParseTakaOptions`**. |
 | **`normalizeTakaInput(input, options?)`** | Stripped/normalized numeric string. |
-| **`isTakaString(input, options?)`** | **`boolean`**; **`false`** for hex or multiple **à§³**. |
+| **`isTakaString(input, options?)`** | **`boolean`**; **`false`** for hex or multiple **৳**. |
 | **`toBanglaDigits`** / **`toEnglishDigits`** | Digit scripts. |
 | **`toPoisha`** / **`fromPoisha`** | Poisha conversion; throws if non-finite or unsafe integer poisha. |
 | **`TAKA_POISHA_PER_TAKA`** | `100` |
@@ -278,7 +296,7 @@ function PriceCard() {
 
 ### Constants
 
-**`TAKA_SYMBOL`** (`à§³`), **`TAKA_CODE`** (`BDT`), **`TAKA_NAME_EN`**, **`TAKA_NAME_BN`**.
+**`TAKA_SYMBOL`** (`৳`), **`TAKA_CODE`** (`BDT`), **`TAKA_NAME_EN`**, **`TAKA_NAME_BN`**.
 
 ### Types
 
@@ -291,7 +309,3 @@ Strict TypeScript, declaration files for **`@coreify/taka`** and **`@coreify/tak
 ## License
 
 MIT
-
-
-
-
