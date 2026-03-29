@@ -3,6 +3,7 @@ export type TakaLanguage = "en" | "bn";
 export type TakaCurrencyDisplay = "symbol" | "code" | "name";
 export type TakaCurrencyPosition = "before" | "after";
 export type TakaCompactStyle = "south-asian" | "international";
+export type TakaCompactLabelStyle = "short" | "localized";
 export type TakaNegativeStyle = "sign" | "accounting";
 /** Accepts primitives, `bigint` within safe range, and boxed numbers from some APIs. */
 export type TakaNumericInput =
@@ -45,6 +46,7 @@ export interface TakaCompactOptions extends Omit<
   "useGrouping"
 > {
   compactStyle?: TakaCompactStyle;
+  compactLabelStyle?: TakaCompactLabelStyle;
 }
 
 export interface ParseTakaOptions {
@@ -65,5 +67,7 @@ export interface FractionDigits {
 
 export interface CompactUnit {
   threshold: number;
-  suffix: string;
+  shortLabel: string;
+  localizedEn: string;
+  localizedBn: string;
 }

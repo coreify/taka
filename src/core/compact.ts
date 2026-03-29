@@ -5,6 +5,7 @@ import {
   combineCurrencyAndValue,
   coerceFiniteAmount,
   formatNumber,
+  getCompactUnitLabel,
   getCompactUnits,
   getCurrencyLabel,
   resolveCurrencyDisplay,
@@ -33,6 +34,7 @@ export function formatTakaCompact(
   const position = resolveCurrencyPosition(display, options.currencyPosition);
   const spaced = resolveCurrencySpacing(display, options.space);
   const compactStyle = options.compactStyle ?? "south-asian";
+  const compactLabelStyle = options.compactLabelStyle ?? "short";
   const absoluteValue = Math.abs(amount);
   const unit = getCompactUnits(compactStyle).find(
     (candidate) => absoluteValue >= candidate.threshold
@@ -54,12 +56,14 @@ export function formatTakaCompact(
     fractionDigits.maximumFractionDigits
   );
   const currencyLabel = getCurrencyLabel(display, locale);
+  const compactLabel = getCompactUnitLabel(unit, locale, compactLabelStyle);
+  const compactSeparator = compactLabelStyle === "localized" ? " " : "";
   const formattedNumber = `${formatNumber(
     scaledDisplayValue,
     locale,
     fractionDigits,
     false
-  )}${unit.suffix}`;
+  )}${compactSeparator}${compactLabel}`;
   const formattedValue = combineCurrencyAndValue(
     currencyLabel,
     formattedNumber,

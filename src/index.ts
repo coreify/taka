@@ -16,6 +16,7 @@ export {
 } from "./core/constants";
 export type {
   ParseTakaOptions,
+  TakaCompactLabelStyle,
   TakaCompactOptions,
   TakaCompactStyle,
   TakaCurrencyDisplay,

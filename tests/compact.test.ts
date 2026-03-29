@@ -1,5 +1,5 @@
 ﻿import { describe, expect, it } from "vitest";
-import { formatTakaCompact, TAKA_SYMBOL, toBanglaDigits } from "../src";
+import { TAKA_SYMBOL, formatTakaCompact, toBanglaDigits } from "../src";
 
 describe("formatTakaCompact", () => {
   it("formats south-asian compact output by default", () => {
@@ -14,8 +14,28 @@ describe("formatTakaCompact", () => {
     );
   });
 
+  it("supports localized compact labels", () => {
+    expect(formatTakaCompact(1200, { compactLabelStyle: "localized" })).toBe(
+      `${TAKA_SYMBOL}1.2 thousand`
+    );
+    expect(
+      formatTakaCompact(125000, {
+        compactLabelStyle: "localized",
+        locale: "bn-BD"
+      })
+    ).toBe(`${TAKA_SYMBOL}${toBanglaDigits("1.25")} লাখ`);
+    expect(
+      formatTakaCompact(10000000, {
+        compactLabelStyle: "localized",
+        locale: "bn-BD"
+      })
+    ).toBe(`${TAKA_SYMBOL}${toBanglaDigits("1")} কোটি`);
+  });
+
   it("supports localized digits and negatives", () => {
-    expect(formatTakaCompact(125000, { locale: "bn-BD" })).toBe(`${TAKA_SYMBOL}${toBanglaDigits("1.25")}L`);
+    expect(formatTakaCompact(125000, { locale: "bn-BD" })).toBe(
+      `${TAKA_SYMBOL}${toBanglaDigits("1.25")}L`
+    );
     expect(formatTakaCompact(-10000000)).toBe(`-${TAKA_SYMBOL}1Cr`);
   });
 
@@ -49,12 +69,14 @@ describe("formatTakaCompact", () => {
 
   it("delegates very small magnitudes to formatTaka (including zeroFormat)", () => {
     expect(formatTakaCompact(0, { zeroFormat: "Free" })).toBe("Free");
-    expect(formatTakaCompact(12, { zeroFormat: "Free" })).toBe(`${TAKA_SYMBOL}12`);
+    expect(formatTakaCompact(12, { zeroFormat: "Free" })).toBe(
+      `${TAKA_SYMBOL}12`
+    );
   });
 
   it("supports accounting negatives in compact mode", () => {
-    expect(
-      formatTakaCompact(-125000, { negativeStyle: "accounting" })
-    ).toBe(`(${TAKA_SYMBOL}1.25L)`);
+    expect(formatTakaCompact(-125000, { negativeStyle: "accounting" })).toBe(
+      `(${TAKA_SYMBOL}1.25L)`
+    );
   });
 });

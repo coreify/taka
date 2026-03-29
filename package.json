@@ -34,6 +34,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "bun run build && vitest run",
+    "test:unit": "vitest run --exclude tests/package-e2e.test.ts --exclude tests/package-built.test.ts --exclude tests/package-built-localized.test.ts",
     "test:watch": "vitest",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
   },

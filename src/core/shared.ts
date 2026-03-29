@@ -16,6 +16,7 @@ import {
 } from "./numeric-string";
 import type {
   CompactUnit,
+  TakaCompactLabelStyle,
   FractionDigits,
   TakaCompactStyle,
   TakaCurrencyDisplay,
@@ -26,15 +27,45 @@ import type {
 } from "../types";
 
 const SOUTH_ASIAN_UNITS: CompactUnit[] = [
-  { threshold: 10_000_000, suffix: "Cr" },
-  { threshold: 100_000, suffix: "L" },
-  { threshold: 1_000, suffix: "K" }
+  {
+    threshold: 10_000_000,
+    shortLabel: "Cr",
+    localizedEn: "crore",
+    localizedBn: "কোটি"
+  },
+  {
+    threshold: 100_000,
+    shortLabel: "L",
+    localizedEn: "lakh",
+    localizedBn: "লাখ"
+  },
+  {
+    threshold: 1_000,
+    shortLabel: "K",
+    localizedEn: "thousand",
+    localizedBn: "হাজার"
+  }
 ];
 
 const INTERNATIONAL_UNITS: CompactUnit[] = [
-  { threshold: 1_000_000_000, suffix: "B" },
-  { threshold: 1_000_000, suffix: "M" },
-  { threshold: 1_000, suffix: "K" }
+  {
+    threshold: 1_000_000_000,
+    shortLabel: "B",
+    localizedEn: "billion",
+    localizedBn: "বিলিয়ন"
+  },
+  {
+    threshold: 1_000_000,
+    shortLabel: "M",
+    localizedEn: "million",
+    localizedBn: "মিলিয়ন"
+  },
+  {
+    threshold: 1_000,
+    shortLabel: "K",
+    localizedEn: "thousand",
+    localizedBn: "হাজার"
+  }
 ];
 
 export function coerceFiniteAmount(
@@ -226,6 +257,18 @@ export function applyNegativeStyle(
 
 export function getCompactUnits(style: TakaCompactStyle): CompactUnit[] {
   return style === "international" ? INTERNATIONAL_UNITS : SOUTH_ASIAN_UNITS;
+}
+
+export function getCompactUnitLabel(
+  unit: CompactUnit,
+  locale: TakaLocale,
+  labelStyle: TakaCompactLabelStyle
+): string {
+  if (labelStyle === "localized") {
+    return locale === "bn-BD" ? unit.localizedBn : unit.localizedEn;
+  }
+
+  return unit.shortLabel;
 }
 
 function normalizeDecimalPlaces(decimals: number): number {
