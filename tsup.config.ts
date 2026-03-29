@@ -12,5 +12,6 @@ export default defineConfig({
   splitting: false,
   target: "es2020",
   treeshake: true,
+  minify: "terser",
   external: ["react"]
 });
