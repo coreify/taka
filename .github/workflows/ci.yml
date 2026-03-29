@@ -17,7 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [18, 22]
+        # Vitest 4 → rolldown uses `util.styleText` (Node 21.7+); Node 18 cannot run the test runner.
+        node-version: [22, 24]
 
     steps:
       - name: Checkout
