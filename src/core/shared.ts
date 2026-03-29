@@ -6,8 +6,10 @@ import {
 } from "./constants";
 import { containsHexLiteral } from "./hex-literal";
 import {
-  isSafeCoercedFiniteNumber,
+  isExactZeroPlainNumericString,
+  isExactZeroScientificNumericString,
   isSafeNumberString,
+  isSafeScientificNumberString,
   isStrictPlainNumericString,
   isStrictScientificNumericString,
   normalizePlainNumericString
@@ -72,9 +74,16 @@ export function coerceFiniteAmount(
     });
 
     if (options.allowScientificNotation && isStrictScientificNumericString(normalized)) {
+      if (!isSafeScientificNumberString(normalized)) {
+        throw new RangeError("Amount is outside the safe numeric range.");
+      }
+
       const parsed = Number(normalized);
 
-      if (!Number.isFinite(parsed) || !isSafeCoercedFiniteNumber(parsed)) {
+      if (
+        !Number.isFinite(parsed) ||
+        (parsed === 0 && !isExactZeroScientificNumericString(normalized))
+      ) {
         throw new RangeError("Amount is outside the safe numeric range.");
       }
 
@@ -93,8 +102,11 @@ export function coerceFiniteAmount(
 
     const parsed = Number(normalized);
 
-    if (!Number.isFinite(parsed)) {
-      throw new TypeError("Expected a finite number or numeric string.");
+    if (
+      !Number.isFinite(parsed) ||
+      (parsed === 0 && !isExactZeroPlainNumericString(normalized))
+    ) {
+      throw new RangeError("Amount is outside the safe numeric range.");
     }
 
     return parsed;

@@ -7,8 +7,10 @@ import {
 import { toEnglishDigits } from "./locale";
 import { containsHexLiteral } from "./hex-literal";
 import {
-  isSafeCoercedFiniteNumber,
+  isExactZeroPlainNumericString,
+  isExactZeroScientificNumericString,
   isSafeNumberString,
+  isSafeScientificNumberString,
   isStrictPlainNumericString,
   isStrictScientificNumericString,
   normalizeNumericSeparators
@@ -68,8 +70,13 @@ export function parseTaka(
       return null;
     }
 
+    if (!isSafeScientificNumberString(normalized)) {
+      return null;
+    }
+
     const parsed = Number(normalized);
-    return Number.isFinite(parsed) && isSafeCoercedFiniteNumber(parsed)
+    return Number.isFinite(parsed) &&
+        !(parsed === 0 && !isExactZeroScientificNumericString(normalized))
       ? parsed
       : null;
   }
@@ -83,7 +90,10 @@ export function parseTaka(
   }
 
   const parsed = Number(normalized);
-  return Number.isFinite(parsed) ? parsed : null;
+  return Number.isFinite(parsed) &&
+      !(parsed === 0 && !isExactZeroPlainNumericString(normalized))
+    ? parsed
+    : null;
 }
 
 export function isTakaString(

@@ -1,6 +1,7 @@
 import { toEnglishDigits } from "./locale";
 
 const MAX_SAFE_INTEGER_STRING = String(Number.MAX_SAFE_INTEGER);
+const MAX_SAFE_INTEGER_LENGTH = MAX_SAFE_INTEGER_STRING.length;
 const PLAIN_NUMBER_PATTERN = /^-?(?:\d+\.?\d*|\.\d+)$/;
 const SCIENTIFIC_NOTATION_PATTERN =
   /^-?(?:\d+(?:\.\d+)?|\.\d+)[eE][+-]?\d+$/;
@@ -122,19 +123,11 @@ function countOccurrences(value: string, needle: string): number {
 }
 
 export function isSafeNumberString(value: string): boolean {
-  const unsignedValue = value.startsWith("-") ? value.slice(1) : value;
-  const [integerPart = "0"] = unsignedValue.split(".");
-  const normalizedIntegerPart = integerPart.replace(/^0+(?=\d)/, "");
+  return isDecimalWithinSafeRange(analyzePlainNumericString(value));
+}
 
-  if (normalizedIntegerPart.length < MAX_SAFE_INTEGER_STRING.length) {
-    return true;
-  }
-
-  if (normalizedIntegerPart.length > MAX_SAFE_INTEGER_STRING.length) {
-    return false;
-  }
-
-  return normalizedIntegerPart <= MAX_SAFE_INTEGER_STRING;
+export function isSafeScientificNumberString(value: string): boolean {
+  return isDecimalWithinSafeRange(analyzeScientificNumericString(value));
 }
 
 export function isStrictPlainNumericString(normalized: string): boolean {
@@ -159,4 +152,113 @@ export function isSafeCoercedFiniteNumber(n: number): boolean {
   }
 
   return Math.abs(n) <= Number.MAX_SAFE_INTEGER;
+}
+
+export function isExactZeroPlainNumericString(value: string): boolean {
+  return analyzePlainNumericString(value).isZero;
+}
+
+export function isExactZeroScientificNumericString(value: string): boolean {
+  return analyzeScientificNumericString(value).isZero;
+}
+
+interface DecimalMagnitudeAnalysis {
+  decimalIndex: bigint;
+  isZero: boolean;
+  significantDigits: string;
+}
+
+function analyzePlainNumericString(value: string): DecimalMagnitudeAnalysis {
+  const unsignedValue = value.startsWith("-") ? value.slice(1) : value;
+  const [integerPart = "0", fractionPart = ""] = unsignedValue.split(".");
+
+  return analyzeNormalizedDecimalParts(integerPart, fractionPart, 0n);
+}
+
+function analyzeScientificNumericString(
+  value: string
+): DecimalMagnitudeAnalysis {
+  const unsignedValue = value.startsWith("-") ? value.slice(1) : value;
+  const [coefficient = "0", exponentPart = "0"] = unsignedValue.split(
+    /[eE]/,
+    2
+  );
+  const [integerPart = "0", fractionPart = ""] = coefficient.split(".");
+  const normalizedExponent =
+    exponentPart.startsWith("+") ? exponentPart.slice(1) : exponentPart;
+
+  return analyzeNormalizedDecimalParts(
+    integerPart,
+    fractionPart,
+    BigInt(normalizedExponent)
+  );
+}
+
+function analyzeNormalizedDecimalParts(
+  integerPart: string,
+  fractionPart: string,
+  exponent: bigint
+): DecimalMagnitudeAnalysis {
+  const combinedDigits = `${integerPart}${fractionPart}`;
+
+  if (!combinedDigits || !/[1-9]/.test(combinedDigits)) {
+    return {
+      decimalIndex: 1n,
+      isZero: true,
+      significantDigits: "0"
+    };
+  }
+
+  const leadingZerosMatch = combinedDigits.match(/^0+/);
+  const leadingZeroCount = leadingZerosMatch?.[0].length ?? 0;
+
+  return {
+    decimalIndex:
+      BigInt(integerPart.length) + exponent - BigInt(leadingZeroCount),
+    isZero: false,
+    significantDigits: combinedDigits.slice(leadingZeroCount)
+  };
+}
+
+function isDecimalWithinSafeRange(
+  analysis: DecimalMagnitudeAnalysis
+): boolean {
+  if (analysis.isZero || analysis.decimalIndex <= 0n) {
+    return true;
+  }
+
+  const safeLength = BigInt(MAX_SAFE_INTEGER_LENGTH);
+
+  if (analysis.decimalIndex < safeLength) {
+    return true;
+  }
+
+  if (analysis.decimalIndex > safeLength) {
+    return false;
+  }
+
+  const integerDigits = takeIntegerDigits(analysis, MAX_SAFE_INTEGER_LENGTH);
+
+  if (integerDigits < MAX_SAFE_INTEGER_STRING) {
+    return true;
+  }
+
+  if (integerDigits > MAX_SAFE_INTEGER_STRING) {
+    return false;
+  }
+
+  return !/[1-9]/.test(
+    analysis.significantDigits.slice(MAX_SAFE_INTEGER_LENGTH)
+  );
+}
+
+function takeIntegerDigits(
+  analysis: DecimalMagnitudeAnalysis,
+  count: number
+): string {
+  if (analysis.significantDigits.length >= count) {
+    return analysis.significantDigits.slice(0, count);
+  }
+
+  return analysis.significantDigits.padEnd(count, "0");
 }

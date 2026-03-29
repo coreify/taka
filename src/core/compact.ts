@@ -49,8 +49,17 @@ export function formatTakaCompact(
     options.trailingZeros,
     2
   );
+  const scaledDisplayValue = truncateCompactValue(
+    scaledValue,
+    fractionDigits.maximumFractionDigits
+  );
   const currencyLabel = getCurrencyLabel(display, locale);
-  const formattedNumber = `${formatNumber(scaledValue, locale, fractionDigits, false)}${unit.suffix}`;
+  const formattedNumber = `${formatNumber(
+    scaledDisplayValue,
+    locale,
+    fractionDigits,
+    false
+  )}${unit.suffix}`;
   const formattedValue = combineCurrencyAndValue(
     currencyLabel,
     formattedNumber,
@@ -59,4 +68,13 @@ export function formatTakaCompact(
   );
 
   return applyNegativeStyle(formattedValue, amount, options.negativeStyle);
+}
+
+function truncateCompactValue(value: number, fractionDigits: number): number {
+  if (fractionDigits <= 0) {
+    return Math.trunc(value);
+  }
+
+  const factor = 10 ** fractionDigits;
+  return Math.trunc(value * factor) / factor;
 }
