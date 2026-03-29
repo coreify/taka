@@ -41,7 +41,7 @@ export default defineConfig([
     },
     clean: false,
     banner: {
-      js: "\"use client\";"
+      js: '"use client";'
     },
     async onSuccess() {
       preserveUseClientDirective();

@@ -11,7 +11,11 @@ import type {
   TakaTextProps
 } from "../types/react";
 
-export type { TakaAmountProps, TakaSymbolProps, TakaTextProps } from "../types/react";
+export type {
+  TakaAmountProps,
+  TakaSymbolProps,
+  TakaTextProps
+} from "../types/react";
 
 export const TakaSymbol = forwardRef<HTMLSpanElement, TakaSymbolProps>(
   function TakaSymbol(

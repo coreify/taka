@@ -5,9 +5,9 @@ const KOTI = "\u0995\u09cb\u099f\u09bf";
 
 describe("formatTakaCompact localized labels", () => {
   it("uses locale-aware words when compactLabelStyle is localized", () => {
-    expect(
-      formatTakaCompact(1200, { compactLabelStyle: "localized" })
-    ).toBe(`${TAKA_SYMBOL}1.2 thousand`);
+    expect(formatTakaCompact(1200, { compactLabelStyle: "localized" })).toBe(
+      `${TAKA_SYMBOL}1.2 thousand`
+    );
     expect(
       formatTakaCompact(125000, {
         compactLabelStyle: "localized",

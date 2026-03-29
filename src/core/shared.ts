@@ -87,9 +87,11 @@ export function coerceFiniteAmount(
   }
 
   const normalizedValue =
-    value instanceof Number ? value.valueOf() : typeof value === "string"
-      ? value.trim()
-      : value;
+    value instanceof Number
+      ? value.valueOf()
+      : typeof value === "string"
+        ? value.trim()
+        : value;
 
   if (typeof normalizedValue === "string") {
     if (!normalizedValue) {
@@ -104,7 +106,10 @@ export function coerceFiniteAmount(
       allowLooseCommaGrouping: options.allowLooseCommaGrouping === true
     });
 
-    if (options.allowScientificNotation && isStrictScientificNumericString(normalized)) {
+    if (
+      options.allowScientificNotation &&
+      isStrictScientificNumericString(normalized)
+    ) {
       if (!isSafeScientificNumberString(normalized)) {
         throw new RangeError("Amount is outside the safe numeric range.");
       }

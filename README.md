@@ -87,7 +87,12 @@ formatTaka(1234567, { useGrouping: false });
 ### Bengali locale
 
 ```ts
-import { formatTaka, getTakaName, toBanglaDigits, toEnglishDigits } from "@coreify/taka";
+import {
+  formatTaka,
+  getTakaName,
+  toBanglaDigits,
+  toEnglishDigits
+} from "@coreify/taka";
 
 formatTaka(2499, { locale: "en-BD" });
 // => "৳2,499"
@@ -281,17 +286,17 @@ function PriceCard() {
 
 ### Core
 
-| Export | Description |
-|--------|-------------|
-| **`formatTaka(value, options?)`** | Format BDT per **`TakaFormatOptions`**. |
-| **`formatCoercedAmount(amount, options?)`** | Format an already-coerced **`number`**. |
-| **`formatTakaCompact(value, options?)`** | Compact form; **`TakaCompactOptions`**. |
-| **`parseTaka(input, options?)`** | **`number \| null`**; **`ParseTakaOptions`**. |
-| **`normalizeTakaInput(input, options?)`** | Stripped/normalized numeric string. |
-| **`isTakaString(input, options?)`** | **`boolean`**; **`false`** for hex or multiple **৳**. |
-| **`toBanglaDigits`** / **`toEnglishDigits`** | Digit scripts. |
-| **`toPoisha`** / **`fromPoisha`** | Poisha conversion; throws if non-finite or unsafe integer poisha. |
-| **`TAKA_POISHA_PER_TAKA`** | `100` |
+| Export                                                      | Description                                                                                                                        |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **`formatTaka(value, options?)`**                           | Format BDT per **`TakaFormatOptions`**.                                                                                            |
+| **`formatCoercedAmount(amount, options?)`**                 | Format an already-coerced **`number`**.                                                                                            |
+| **`formatTakaCompact(value, options?)`**                    | Compact form; **`TakaCompactOptions`**.                                                                                            |
+| **`parseTaka(input, options?)`**                            | **`number \| null`**; **`ParseTakaOptions`**.                                                                                      |
+| **`normalizeTakaInput(input, options?)`**                   | Stripped/normalized numeric string.                                                                                                |
+| **`isTakaString(input, options?)`**                         | **`boolean`**; **`false`** for hex or multiple **৳**.                                                                              |
+| **`toBanglaDigits`** / **`toEnglishDigits`**                | Digit scripts.                                                                                                                     |
+| **`toPoisha`** / **`fromPoisha`**                           | Poisha conversion; throws if non-finite or unsafe integer poisha.                                                                  |
+| **`TAKA_POISHA_PER_TAKA`**                                  | `100`                                                                                                                              |
 | **`getTakaSymbol`** / **`getTakaCode`** / **`getTakaName`** | Constants helpers; name resolves **`bn`**, **`bn-BD`**, **`bn-*`**, **`en`**, **`en-BD`**, **`en-*`**; otherwise English **Taka**. |
 
 ### Constants

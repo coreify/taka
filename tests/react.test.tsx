@@ -60,11 +60,7 @@ describe("React helpers", () => {
 
   it("passes string coercion flags into format and aria label (not the DOM)", () => {
     const markup = renderToStaticMarkup(
-      <TakaAmount
-        value="1e3"
-        locale="en-BD"
-        allowScientificNotation
-      />
+      <TakaAmount value="1e3" locale="en-BD" allowScientificNotation />
     );
     expect(markup).toContain("1,000");
     expect(markup).toContain('aria-label="1,000 Taka"');

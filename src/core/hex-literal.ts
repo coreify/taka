@@ -10,9 +10,7 @@ export function normalizeForHexLiteralScan(input: string): string {
     .replace(/[−–—]/g, "-")
     .trim();
 
-  s = s.replace(/[\uFF10-\uFF19]/g, (ch) =>
-    String(ch.charCodeAt(0) - 0xff10)
-  );
+  s = s.replace(/[\uFF10-\uFF19]/g, (ch) => String(ch.charCodeAt(0) - 0xff10));
   s = s.replace(/\uFF58/g, "x");
   s = s.replace(/\uFF38/g, "X");
 

@@ -2,11 +2,7 @@ export { formatCoercedAmount, formatTaka } from "./core/format";
 export { formatTakaCompact } from "./core/compact";
 export { isTakaString, normalizeTakaInput, parseTaka } from "./core/parse";
 export { toBanglaDigits, toEnglishDigits } from "./core/locale";
-export {
-  fromPoisha,
-  TAKA_POISHA_PER_TAKA,
-  toPoisha
-} from "./core/subunits";
+export { fromPoisha, TAKA_POISHA_PER_TAKA, toPoisha } from "./core/subunits";
 export { getTakaCode, getTakaName, getTakaSymbol } from "./core/symbol";
 export {
   TAKA_CODE,

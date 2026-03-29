@@ -65,7 +65,10 @@ export function parseTaka(
     return null;
   }
 
-  if (options.allowScientificNotation && isStrictScientificNumericString(normalized)) {
+  if (
+    options.allowScientificNotation &&
+    isStrictScientificNumericString(normalized)
+  ) {
     if (!hasTakaToken(input)) {
       return null;
     }
@@ -76,7 +79,7 @@ export function parseTaka(
 
     const parsed = Number(normalized);
     return Number.isFinite(parsed) &&
-        !(parsed === 0 && !isExactZeroScientificNumericString(normalized))
+      !(parsed === 0 && !isExactZeroScientificNumericString(normalized))
       ? parsed
       : null;
   }
@@ -91,7 +94,7 @@ export function parseTaka(
 
   const parsed = Number(normalized);
   return Number.isFinite(parsed) &&
-      !(parsed === 0 && !isExactZeroPlainNumericString(normalized))
+    !(parsed === 0 && !isExactZeroPlainNumericString(normalized))
     ? parsed
     : null;
 }

@@ -24,14 +24,18 @@ describe("formatTaka", () => {
   });
 
   it("formats Bengali digits and the Bengali currency name", () => {
-    expect(formatTaka(1250, { locale: "bn-BD" })).toBe(`${TAKA_SYMBOL}${toBanglaDigits("1,250")}`);
+    expect(formatTaka(1250, { locale: "bn-BD" })).toBe(
+      `${TAKA_SYMBOL}${toBanglaDigits("1,250")}`
+    );
     expect(formatTaka(1250, { locale: "bn-BD", style: "name" })).toBe(
       `${toBanglaDigits("1,250")} ${TAKA_NAME_BN}`
     );
   });
 
   it("uses the requested locale for large-number grouping", () => {
-    expect(formatTaka(1234567.89, { locale: "en-BD" })).toBe(`${TAKA_SYMBOL}1,234,567.89`);
+    expect(formatTaka(1234567.89, { locale: "en-BD" })).toBe(
+      `${TAKA_SYMBOL}1,234,567.89`
+    );
     expect(formatTaka(1234567.89, { locale: "bn-BD" })).toBe(
       `${TAKA_SYMBOL}${toBanglaDigits("12,34,567.89")}`
     );
@@ -41,7 +45,9 @@ describe("formatTaka", () => {
     expect(formatTaka(1250, { currencyPosition: "after", space: true })).toBe(
       `1,250 ${TAKA_SYMBOL}`
     );
-    expect(formatTaka(-1250, { negativeStyle: "accounting" })).toBe(`(${TAKA_SYMBOL}1,250)`);
+    expect(formatTaka(-1250, { negativeStyle: "accounting" })).toBe(
+      `(${TAKA_SYMBOL}1,250)`
+    );
   });
 
   it("supports custom zero formatting", () => {
@@ -70,9 +76,7 @@ describe("formatTaka", () => {
     expect(() => formatTaka("\uFF10x10")).toThrow(TypeError);
     expect(() => formatTaka("\uFF10x10")).toThrow(/hex/i);
     expect(() => formatTaka("9007199254740993")).toThrow(RangeError);
-    expect(() =>
-      formatTaka(BigInt("9007199254740993"))
-    ).toThrow(RangeError);
+    expect(() => formatTaka(BigInt("9007199254740993"))).toThrow(RangeError);
   });
 
   it("accepts scientific numeric strings when allowScientificNotation is set", () => {
@@ -85,9 +89,9 @@ describe("formatTaka", () => {
   });
 
   it("accepts loose comma grouping in strings when allowLooseCommaGrouping is set", () => {
-    expect(
-      formatTaka("1,23,45", { allowLooseCommaGrouping: true })
-    ).toBe(`${TAKA_SYMBOL}12,345`);
+    expect(formatTaka("1,23,45", { allowLooseCommaGrouping: true })).toBe(
+      `${TAKA_SYMBOL}12,345`
+    );
   });
 
   it("rejects non-finite amounts", () => {
@@ -109,17 +113,25 @@ describe("formatTaka", () => {
 
   it("treats negative zero like zero for sign output", () => {
     expect(formatTaka(-0)).toBe(`${TAKA_SYMBOL}0`);
-    expect(formatTaka(-0, { negativeStyle: "accounting" })).toBe(`${TAKA_SYMBOL}0`);
+    expect(formatTaka(-0, { negativeStyle: "accounting" })).toBe(
+      `${TAKA_SYMBOL}0`
+    );
   });
 
   it("lets style win over currency when both are set", () => {
     expect(
-      formatTaka(100, { currency: "code", style: "name", currencyPosition: "before" })
+      formatTaka(100, {
+        currency: "code",
+        style: "name",
+        currencyPosition: "before"
+      })
     ).toBe("Taka 100");
   });
 
   it("allows disabling digit grouping", () => {
-    expect(formatTaka(1234567, { useGrouping: false })).toBe(`${TAKA_SYMBOL}1234567`);
+    expect(formatTaka(1234567, { useGrouping: false })).toBe(
+      `${TAKA_SYMBOL}1234567`
+    );
   });
 
   it("formats fractional amounts without fixed decimals by default", () => {
@@ -140,4 +152,3 @@ describe("formatTaka", () => {
     );
   });
 });
-

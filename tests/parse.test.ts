@@ -20,7 +20,9 @@ describe("parseTaka", () => {
   });
 
   it("normalizes localized digits and wrappers", () => {
-    expect(normalizeTakaInput(`${TAKA_SYMBOL} ${toBanglaDigits("1250.50")}`)).toBe("1250.50");
+    expect(
+      normalizeTakaInput(`${TAKA_SYMBOL} ${toBanglaDigits("1250.50")}`)
+    ).toBe("1250.50");
     expect(parseTaka(`(${TAKA_SYMBOL}1,250)`)).toBe(-1250);
   });
 
@@ -64,7 +66,9 @@ describe("parseTaka", () => {
   });
 
   it("does not treat parentheses as negative when disabled", () => {
-    expect(parseTaka(`(${TAKA_SYMBOL}1,250)`, { allowParentheses: false })).toBeNull();
+    expect(
+      parseTaka(`(${TAKA_SYMBOL}1,250)`, { allowParentheses: false })
+    ).toBeNull();
   });
 
   it("rejects scientific notation and other non-plain numbers by default", () => {
@@ -73,22 +77,16 @@ describe("parseTaka", () => {
   });
 
   it("parses scientific notation when allowScientificNotation is set", () => {
-    expect(parseTaka(`${TAKA_SYMBOL}1e3`, { allowScientificNotation: true })).toBe(
-      1000
-    );
     expect(
-      parseTaka("1e3", { allowScientificNotation: true })
-    ).toBeNull();
+      parseTaka(`${TAKA_SYMBOL}1e3`, { allowScientificNotation: true })
+    ).toBe(1000);
+    expect(parseTaka("1e3", { allowScientificNotation: true })).toBeNull();
     expect(parseTaka("BDT 1.5e2", { allowScientificNotation: true })).toBe(150);
-    expect(
-      parseTaka("BDT1e3", { allowScientificNotation: true })
-    ).toBe(1000);
-    expect(
-      parseTaka("Taka1e3", { allowScientificNotation: true })
-    ).toBe(1000);
-    expect(
-      parseTaka("BDT100.5e2", { allowScientificNotation: true })
-    ).toBe(10050);
+    expect(parseTaka("BDT1e3", { allowScientificNotation: true })).toBe(1000);
+    expect(parseTaka("Taka1e3", { allowScientificNotation: true })).toBe(1000);
+    expect(parseTaka("BDT100.5e2", { allowScientificNotation: true })).toBe(
+      10050
+    );
     expect(
       parseTaka(`${TAKA_SYMBOL}1e400`, { allowScientificNotation: true })
     ).toBeNull();

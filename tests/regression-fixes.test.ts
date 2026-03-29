@@ -43,8 +43,8 @@ describe("regression fixes", () => {
   it("prevents compact formatting from overstating values at unit edges", () => {
     expect(formatTakaCompact(999999)).toBe(`${TAKA_SYMBOL}9.99L`);
     expect(formatTakaCompact(9999999)).toBe(`${TAKA_SYMBOL}99.99L`);
-    expect(
-      formatTakaCompact(999999, { compactStyle: "international" })
-    ).toBe(`${TAKA_SYMBOL}999.99K`);
+    expect(formatTakaCompact(999999, { compactStyle: "international" })).toBe(
+      `${TAKA_SYMBOL}999.99K`
+    );
   });
 });

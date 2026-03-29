@@ -33,7 +33,9 @@ beforeAll(async () => {
     distIndexTypesPath
   ]) {
     if (!existsSync(path)) {
-      throw new Error(`Expected built artifact at ${path}. Run the build first.`);
+      throw new Error(
+        `Expected built artifact at ${path}. Run the build first.`
+      );
     }
   }
 
@@ -59,9 +61,7 @@ describe("package build outputs", () => {
   });
 
   it("reject out-of-range and underflowing string inputs", () => {
-    expect(
-      builtCoreEsm.parseTaka("BDT 9007199254740991.5")
-    ).toBeNull();
+    expect(builtCoreEsm.parseTaka("BDT 9007199254740991.5")).toBeNull();
     expect(() => builtCoreEsm.formatTaka("9007199254740991.5")).toThrow(
       RangeError
     );

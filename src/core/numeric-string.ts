@@ -3,8 +3,7 @@ import { toEnglishDigits } from "./locale";
 const MAX_SAFE_INTEGER_STRING = String(Number.MAX_SAFE_INTEGER);
 const MAX_SAFE_INTEGER_LENGTH = MAX_SAFE_INTEGER_STRING.length;
 const PLAIN_NUMBER_PATTERN = /^-?(?:\d+\.?\d*|\.\d+)$/;
-const SCIENTIFIC_NOTATION_PATTERN =
-  /^-?(?:\d+(?:\.\d+)?|\.\d+)[eE][+-]?\d+$/;
+const SCIENTIFIC_NOTATION_PATTERN = /^-?(?:\d+(?:\.\d+)?|\.\d+)[eE][+-]?\d+$/;
 
 export interface NormalizePlainNumericOptions {
   allowParentheses?: boolean;
@@ -184,8 +183,9 @@ function analyzeScientificNumericString(
     2
   );
   const [integerPart = "0", fractionPart = ""] = coefficient.split(".");
-  const normalizedExponent =
-    exponentPart.startsWith("+") ? exponentPart.slice(1) : exponentPart;
+  const normalizedExponent = exponentPart.startsWith("+")
+    ? exponentPart.slice(1)
+    : exponentPart;
 
   return analyzeNormalizedDecimalParts(
     integerPart,
@@ -220,9 +220,7 @@ function analyzeNormalizedDecimalParts(
   };
 }
 
-function isDecimalWithinSafeRange(
-  analysis: DecimalMagnitudeAnalysis
-): boolean {
+function isDecimalWithinSafeRange(analysis: DecimalMagnitudeAnalysis): boolean {
   if (analysis.isZero || analysis.decimalIndex <= 0n) {
     return true;
   }
